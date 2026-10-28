@@ -1,0 +1,6 @@
+.venv/
+.idea/
+.junie/
+__pycache__/
+data/raw/
+data/lseg/
