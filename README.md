@@ -12,7 +12,7 @@ Intel is quite difficult to value. Free cash flow has been negative because of f
 |---|---|---|
 | Data pipeline (SEC EDGAR, yfinance, FRED) | Reproducible inputs from free sources | Done |
 | Historical analysis | Margins, capex intensity, FCF, net debt | Done |
-| WACC (CAPM) | Discount rate range from several beta windows | Done (inputs to be refreshed) |
+| WACC (CAPM) | Discount rate range from several beta windows | Done |
 | Scenario DCF | Bear / base / bull, sensitivity grid, tornado chart | *(planned)* |
 | Sum-of-the-parts | Intel Products vs Intel Foundry plus stakes | *(planned)* |
 | Comps | EV/Sales, EV/EBITDA, P/B against peers | *(planned)* |
@@ -102,9 +102,9 @@ To force fresh market data, delete the files in `data/raw/` (or pass `refresh=Tr
 ## Data sources and as-of dates
 
 | Input | Source | As of |
-|---|---|---|
+|---|---|--|
 | Financial statements | SEC EDGAR XBRL company facts | FY2025 10-K |
-| Latest balance sheet | SEC EDGAR, tied to the Q2 2026 10-Q | 27 Jun 2026 |
+| Latest balance sheet | SEC EDGAR, tied to the Q2 2026 10-Q | INTC price as of 30 Oct 2026, after the Q3 results |
 | Shares outstanding | 10-Q cover page / balance sheet (about 5.04bn) | Jul 2026 |
 | Risk-free rate | FRED DGS10 (5.12%) | 20 Oct 2026 |
 | Equity risk premium | Damodaran implied ERP (4.20%) | 1 Oct 2026 |

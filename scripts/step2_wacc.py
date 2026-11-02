@@ -18,10 +18,9 @@ equity = price * shares
 bs = load_balance_sheet_latest()
 debt = bs.get("debt_current", 0) + bs.get("debt_long_term", 0)
 
-fin = load_financials()
-avg_debt = (fin["debt_current"].fillna(0) + fin["debt_long_term"].fillna(0)).tail(2).mean()
-kd = 0.06
-print(f"Pre-tax cost of debt: {kd:.2%} (check it's sensible; XBRL interest expense can be net)")
+SPREAD = 0.02
+kd = rf + SPREAD
+print(f"Pre-tax cost of debt: {kd:.2%} (risk-free {rf:.2%} + spread {SPREAD:.2%})")
 
 def returns(ticker, freq):
     return load_prices(ticker)["Close"].resample(freq).last().pct_change().dropna()
