@@ -1,6 +1,15 @@
 import numpy as np
 import pandas as pd
 
+def paired_returns(asset_close: pd.Series, bench_close: pd.Series,
+                   freq: str, drop_partial_last: bool = False) -> tuple [pd.Series, pd.Series]:
+    px = pd.concat({"asset":asset_close, "bench":bench_close}, axis=1).dropna()
+    r = px.resample(freq).last().pct_change().dropna()
+    if drop_partial_last:
+        r = r.iloc[:-1]
+    return r["asset"], r["bench"]
+
+
 def estimate_beta(stock_returns: pd.Series, market_returns: pd.Series) -> float:
     df = pd.concat([stock_returns, market_returns], axis=1).dropna()
     cov = np.cov(df.iloc[:, 0], df.iloc[:, 1])
