@@ -1,0 +1,67 @@
+# Intel DCF assumptions. Units: $m, decimals for rates. Drafted 4 Nov 2026.
+# Rationale is written BEFORE any valuation output was run, on purpose.
+# Every number here is my judgement from the evidence cited; review and overwrite freely.
+#
+# EVIDENCE
+#  - FY2016-20: revenue 59-78bn, EBIT margin 22-33% (Intel's dominant-IDM era).
+#  - FY2022-25: revenue fell to ~53bn, EBIT margin 3.7% -> 0.2% -> -22% -> -4%,
+#    capex 28-48% of revenue (fab build-out), FCF negative every year.
+#  - Q3 2026 (30 Oct release): revenue 16,513 (+21% y/y), GAAP GM 43.0%,
+#    GAAP operating income 2,522 (15.3% margin). Data-centre/AI +78%, Foundry +58%.
+#  - Q4 2026 guide: revenue 15.0-16.0bn, GAAP GM 37.1%, GAAP EPS 0.10 -> margins
+#    fall back sharply, which is why the stock fell ~29%. Q3 margin is NOT a run-rate.
+#  - 9M 2026: D&A 9,592; capex 10,216 (investing) + 1,618 (financing) = ~11.8bn gross.
+#    Annualised: capex ~16bn, D&A ~12.8bn, on revenue of roughly 60bn.
+#  - $23bn equity raise in 2026 (22.6bn net) fixed the balance sheet: net cash ~3.9bn.
+#
+# SCENARIO LOGIC
+#  base: recovery is real but slow. Revenue growth fades from low double digits to
+#        3.5%. EBIT margin climbs to ~20% by 2035, below the 2016-20 range because
+#        the foundry business is capital-heavy and lower margin than the old IDM.
+#  bear: foundry fails to win external customers at scale, share loss continues.
+#        Growth fades to 2.5%, margin plateaus at ~11%, capex stays high.
+#  bull: 18A/14A wins external customers, data-centre/AI momentum persists.
+#        Growth stays high longer, margin returns to ~26%, capex intensity falls faster.
+#
+# FY2026 growth (first element) is a PLACEHOLDER: set it from Q1+Q2+Q3 actuals plus the
+# Q4 guide midpoint (15.5bn) over FY2025 revenue 52,853. I only have Q3 and Q4 here.
+#
+# WACC: 11.5% base (blended Blume-adjusted weekly beta ~1.7-1.8, Ke ~12.3%, debt ~12%
+# of capital), tested 10-13.5% in the sensitivity grid. Not scenario-dependent.
+# Terminal growth: 2.5% base; terminal year capex slightly above D&A (growth needs it).
+# Tax: 18% cash rate (Q4 non-GAAP guide is 11%, GAAP 31%; long-run US statutory 21%).
+
+company: INTC
+base_year: 2025
+revenue0: 52853
+tax_rate: 0.18
+nwc_pct_of_delta_rev: 0.10
+wacc: 0.115
+shares: 5310          # millions, Q3 2026 release (loader shows 5,315: reconcile)
+
+bridge:               # Q3 2026, 26 Sep 2026
+  cash: 21846
+  short_term_investments: 32159
+  debt: 50134
+  nci: 16642          # book value; fab JV stakes may be worth more, sensitise this
+
+scenarios:
+  bear:
+    terminal_growth: 0.020
+    growth:      [0.08, 0.05, 0.04, 0.03, 0.03, 0.03, 0.03, 0.03, 0.025, 0.025]
+    ebit_margin: [0.03, 0.05, 0.07, 0.08, 0.09, 0.10, 0.10, 0.11, 0.11,  0.11]
+    da_pct:      0.20
+    capex_pct:   [0.28, 0.26, 0.24, 0.22, 0.20, 0.19, 0.18, 0.17, 0.16,  0.16]
+  base:
+    terminal_growth: 0.025
+    growth:      [0.12, 0.10, 0.09, 0.08, 0.07, 0.06, 0.05, 0.045, 0.04,  0.035]
+    ebit_margin: [0.05, 0.09, 0.13, 0.16, 0.18, 0.19, 0.20, 0.20, 0.20,  0.20]
+    da_pct:      [0.18, 0.17, 0.165, 0.16, 0.155, 0.15, 0.145, 0.14, 0.135, 0.13]
+    capex_pct:   [0.27, 0.24, 0.21, 0.19, 0.17, 0.16, 0.15, 0.15, 0.14,  0.14]
+  bull:
+    terminal_growth: 0.030
+    growth:      [0.15, 0.14, 0.12, 0.11, 0.10, 0.08, 0.07, 0.06, 0.05,  0.04]
+    ebit_margin: [0.07, 0.13, 0.18, 0.22, 0.24, 0.25, 0.26, 0.26, 0.26,  0.26]
+    da_pct:      0.16
+    capex_pct:   [0.25, 0.21, 0.18, 0.16, 0.15, 0.14, 0.14, 0.13, 0.13,  0.13]
+# NOTE: dcf.py takes one da_pct per run. Terminal D&A below terminal capex is intended.

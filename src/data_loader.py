@@ -50,7 +50,7 @@ FLOW_TAGS = {
     "operating_income": ["OperatingIncomeLoss"],
     "net_income": ["NetIncomeLoss"],
     "depreciation": ["Depreciation"],
-    "amortization": ["AmortizationofIntangibleAssets"],
+    "amortization": ["AmortizationOfIntangibleAssets"],
     "capex": ["PaymentsToAcquirePropertyPlantAndEquipment"],  # gross, not netted
     "cfo": ["NetCashProvidedByUsedInOperatingActivities"],
     "rd_expense": ["ResearchAndDevelopmentExpense"],

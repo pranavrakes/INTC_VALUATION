@@ -49,3 +49,6 @@ for label, i, s in windows:
     ke = cost_of_equity(rf, beta, ERP)
     w = wacc(equity, debt, ke, after_tax_cost_of_debt(kd, TAX_RATE))
     print(f"{label:<14}{beta:>7.2f}{ke:>9.2%}{w:>9.2%}")
+
+print(f"Price {price:.2f} on {intc_px.index[-1].date()} | Shares {shares/1e9:.3f}bn")
+print(bs)
