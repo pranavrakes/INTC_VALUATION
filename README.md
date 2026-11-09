@@ -8,17 +8,17 @@ Intel is quite difficult to value. Free cash flow has been negative because of f
 
 ## Methods
 
-| Method | Purpose | Status |
-|---|---|---|
-| Data pipeline (SEC EDGAR, yfinance, FRED) | Reproducible inputs from free sources | Done |
+| Method | Purpose | Status                                                 |
+|---|---|--------------------------------------------------------|
+| Data pipeline (SEC EDGAR, yfinance, FRED) | Reproducible inputs from free sources | Done                                                   |
 | Historical analysis | Margins, capex intensity, FCF, net debt | Done (pre-2016 revenue gap and pre-2022 net debt open) |
-| WACC (CAPM) | Discount rate range from several beta windows | Done |
-| Scenario DCF | Bear / base / bull, WACC x g grid, tornado | Built; draft assumptions, terminal D&A/capex fix pending |
-| Reverse DCF | Revenue CAGR, terminal margin and WACC needed to justify the market price | Written, not yet run |
-| Sum-of-the-parts | Intel Products vs Intel Foundry plus stakes | *(planned)* |
-| Comps | EV/Sales, EV/EBITDA, P/B against peers | *(planned)* |
-| Monte Carlo | Correlated draws, fixed seed, value distribution | *(planned)* |
-| Football field and memo | Combine all methods, state what would prove the thesis wrong | *(planned)* |
+| WACC (CAPM) | Discount rate range from several beta windows | Done                                                   |
+| Scenario DCF | Bear / base / bull, WACC x g grid, tornado | Done(engine); assumptions under review                 |
+| Reverse DCF | Revenue CAGR, terminal margin and WACC needed to justify the market price | Done                                                   |
+| Sum-of-the-parts | Intel Products vs Intel Foundry plus stakes | *(planned)*                                            |
+| Comps | EV/Sales, EV/EBITDA, P/B against peers | *(planned)*                                            |
+| Monte Carlo | Correlated draws, fixed seed, value distribution | *(planned)*                                            |
+| Football field and memo | Combine all methods, state what would prove the thesis wrong | *(planned)*                                            |
 
 ## Project layout
 
@@ -154,15 +154,25 @@ The WACC range across windows is 10.9-13.8%. The base case uses **11.5%**, consi
 
 ## Results so far
 
-Draft assumptions, WACC 11.5%, **before** the terminal D&A/capex fix (base case expected to fall once D&A fades below terminal capex):
+DCF at WACC 11.5%, after fading D&A below terminal capex in all three scenarios:
 
 | Scenario | Value per share | vs 65.76 |
 |---|---|---|
-| Bear | 8.05 | -88% |
-| Base | 23.47 | -64% |
-| Bull | 38.66 | -41% |
+| Bear | 0.96 | -98% |
+| Base | 17.31 | -74% |
+| Bull | 33.67 | -49% |
 
-Even the bull case is below the market price, so the market EV (about 362bn) requires far more than the base case. Reverse DCF output goes here once `step4_reverse_dcf.py` has been run.
+Even the bull case is well below the market price, so the market EV (about 362bn) requires far more than any scenario assumes.
+
+### Reverse DCF: what the base case would need to reach 65.76
+
+| Driver | Base as modelled | Needed for 65.76 |
+|---|---|---|
+| Revenue CAGR over 10 years | 6.9% (103bn in year 10) | 24.4% (468bn in year 10) |
+| Year-10 EBIT margin | 20% | 72% |
+| WACC | 11.5% | 5.6% |
+
+At a 15% revenue CAGR the year-10 EBIT margin would have to be about 40%, and at 20% about 28%. The bear case has no realistic solution.
 
 ## Limitations
 
