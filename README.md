@@ -1,24 +1,24 @@
 # Intel (INTC) Valuation Model
 
-A scenario-based valuation of Intel Corporation in pure Python: DCF (bear/base/bull) with a reverse DCF, sum-of-the-parts, relative valuation against peers, and a Monte Carlo layer, combined into a football field chart and a short investment memo.
+A scenario-based valuation of Intel Corporation in pure Python: DCF (bear/base/bull) with a reverse DCF, relative valuation against peers, a sum-of-the-parts, and (planned) a Monte Carlo layer, combined into a football field chart and a short investment memo.
 
-Intel is quite difficult to value. Free cash flow has been negative because of foundry capex. Earnings are volatile or negative (so P/E cannot be used), and the capital structure has changed recently (including a $23bn equity raise in 2026). The point of the project is to make and defend those judgement calls. It will not produce a "correct" price target.
+Intel is quite difficult to value. Free cash flow has been negative because of foundry capex. Earnings are volatile (so P/E cannot be used), and the capital structure has changed recently, including a $23bn equity raise in 2026. The point of the project is to make and defend those judgement calls. It will not produce a "correct" price target.
 
 > **Status:** work in progress. Sections marked *(planned)* are not built yet.
 
 ## Methods
 
-| Method | Purpose | Status                                                 |
-|---|---|--------------------------------------------------------|
-| Data pipeline (SEC EDGAR, yfinance, FRED) | Reproducible inputs from free sources | Done                                                   |
+| Method | Purpose | Status |
+|---|---|---|
+| Data pipeline (SEC EDGAR, yfinance, FRED) | Reproducible inputs from free sources | Done |
 | Historical analysis | Margins, capex intensity, FCF, net debt | Done (pre-2016 revenue gap and pre-2022 net debt open) |
-| WACC (CAPM) | Discount rate range from several beta windows | Done                                                   |
-| Scenario DCF | Bear / base / bull, WACC x g grid, tornado | Done(engine); assumptions under review                 |
-| Reverse DCF | Revenue CAGR, terminal margin and WACC needed to justify the market price | Done                                                   |
-| Sum-of-the-parts | Intel Products vs Intel Foundry plus stakes | *(planned)*                                            |
-| Comps | EV/Sales, EV/EBITDA, P/B against peers | *(planned)*                                            |
-| Monte Carlo | Correlated draws, fixed seed, value distribution | *(planned)*                                            |
-| Football field and memo | Combine all methods, state what would prove the thesis wrong | *(planned)*                                            |
+| WACC (CAPM) | Discount rate range from several beta windows | Done |
+| Scenario DCF | Bear / base / bull, WACC x g grid, tornado | Done (engine); assumptions under review |
+| Reverse DCF | Revenue CAGR, terminal margin and WACC needed to justify the market price | Done |
+| Comps | EV/Sales, EV/EBITDA, P/B against peers | Built; scraped data, spot-check |
+| Sum-of-the-parts | Intel Products vs Intel Foundry plus corporate costs | Built; multiples are judgements |
+| Monte Carlo | Correlated draws, fixed seed, value distribution | *(planned)* |
+| Football field and memo | Combine all methods, state what would prove the thesis wrong | *(planned)* |
 
 ## Project layout
 
@@ -30,29 +30,34 @@ PythonProject1/
 ├── config/
 │   └── assumptions.yaml    # scenario assumptions and equity bridge inputs
 ├── src/                    # reusable logic
-│   ├── data_loader.py      # SEC / yfinance / FRED pulls
+│   ├── data_loader.py      # SEC / yfinance / FRED pulls, peer snapshot
 │   ├── wacc.py             # beta (paired_returns), CAPM, WACC
 │   ├── dcf.py              # DCF engine, sensitivity grid
 │   ├── reverse_dcf.py      # bisection solvers for implied drivers
-│   ├── sotp.py             # (planned)
-│   ├── comps.py            # (planned)
+│   ├── comps.py            # peer multiples, implied Intel value
+│   ├── sotp.py             # segment run-rates, SOTP cases
 │   └── montecarlo.py       # (planned)
 ├── scripts/                # run in order; each prints tables and saves outputs
+│   ├── check_tags.py       # XBRL tag diagnostics
 │   ├── step1_historicals.py
 │   ├── step2_wacc.py
 │   ├── step3_dcf.py
 │   ├── step4_reverse_dcf.py
-│   └── step5 ... step8     # (planned: SOTP, comps, Monte Carlo, football field)
+│   ├── step5_comps.py
+│   ├── step6_sotp.py
+│   └── step7 ... step8     # (planned: Monte Carlo, football field)
 ├── tests/
 │   ├── test_wacc.py
 │   ├── test_dcf.py
-│   └── test_reverse_dcf.py
+│   ├── test_reverse_dcf.py
+│   ├── test_comps.py
+│   └── test_sotp.py
 ├── data/
 │   ├── raw/                # cached downloads (gitignored)
 │   ├── processed/          # cleaned CSVs derived from public filings
 │   └── manual/             # hand-entered inputs: segments.csv, capex_financed.csv
 ├── knowledge_base/         # notes (financial_terms.md)
-├── outputs/                # tables, charts, Excel export
+├── outputs/                # tables, charts (gitignored; regenerated by the scripts)
 └── memo.md                 # (planned) thesis and falsification criteria
 ```
 
@@ -63,23 +68,25 @@ PythonProject1/
    `$env:SEC_USER_AGENT="Your Name your.email@example.com"`
    (macOS/Linux: `export SEC_USER_AGENT="..."`)
 3. Pull data: `python src/data_loader.py`
-4. Fill in `data/manual/segments.csv` from the latest 10-K segment note (USD millions, with a source note per row).
+4. Check `data/manual/segments.csv` against the latest 10-Q/10-K segment note (USD millions, source note on every row).
 5. Run the scripts in order:
    - `python scripts/step1_historicals.py` - historical tables and chart
    - `python scripts/step2_wacc.py` - beta, cost of equity and WACC by window
    - `python scripts/step3_dcf.py` - three scenarios, sensitivity grid, tornado
    - `python scripts/step4_reverse_dcf.py [--price 65.76]` - what the market price implies
+   - `python scripts/step5_comps.py [--refresh]` - peer multiples and implied Intel value
+   - `python scripts/step6_sotp.py` - sum-of-the-parts and the Foundry transfer-price sensitivity
    - later steps *(planned)*
 6. Run the tests: `pip install pytest` then `pytest`
 
-To force fresh market data, delete the files in `data/raw/` (or pass `refresh=True` to the loader functions). Cached files never expire on their own (cache expiry is on the to-do list).
+To force fresh market data, delete the files in `data/raw/` (or pass `refresh=True` to the loader functions, or `--refresh` to step 5). Cached files never expire on their own (cache expiry is on the to-do list).
 
 ## Step-by-step plan
 
 ### Phase 0: Setup
-1. Create the folder structure and `.gitignore` (`.venv/`, `.idea/`, `__pycache__/`, `data/raw/`, `data/lseg/`).
-2. Run `data_loader.py` and confirm it prints financials, shares outstanding, last close, 10Y yield and the segment template path.
-3. Fill in `segments.csv` from the 10-K.
+1. Create the folder structure and `.gitignore` (`.venv/`, `.idea/`, `__pycache__/`, `data/raw/`, `data/lseg/`, `outputs/`).
+2. Run `data_loader.py` and confirm it prints financials, shares outstanding, last close and 10Y yield.
+3. Fill in `segments.csv` from the filings.
 
 ### Phase 1: Understand the business
 4. Run `step1_historicals.py`. Check revenue and operating income against the 10-K for two or three years. Make sure no column is NaN.
@@ -93,16 +100,16 @@ To force fresh market data, delete the files in `data/raw/` (or pass `refresh=Tr
 10. Present a WACC range, not a single number, and cross-check against Yahoo's beta and an industry beta relevered at Intel's leverage.
 
 ### Phase 3: DCF
-11. `assumptions.yaml` holds bear/base/bull scenarios (revenue growth, EBIT margin path, D&A, capex, tax rate, terminal growth), each with a written rationale **before** looking at output.
+11. `assumptions.yaml` holds bear/base/bull scenarios (revenue growth, EBIT margin path, D&A, capex, tax rate, terminal growth), each with a written rationale **before** looking at output. FY2026 year-1 growth is anchored to nine-month reported revenue plus the Q4 guidance range.
 12. `dcf.py` is unit tested against hand-calculated cases.
 13. Run the three scenarios, a WACC vs terminal growth grid, and a tornado chart.
-14. Sanity checks: terminal value share of EV, implied exit multiple, terminal growth below the risk-free rate, **terminal capex at least D&A**.
+14. Sanity checks: terminal value share of EV, implied exit multiple, terminal growth below the risk-free rate, **terminal capex at least D&A** (the engine warns if not).
 15. Equity bridge: EV plus cash and short-term investments, minus debt, minus non-controlling interest, divided by shares outstanding.
 16. Reverse DCF: solve for the revenue CAGR, terminal EBIT margin and WACC that equate DCF value to the market price. Assumptions are never tuned to hit the price.
 
-### Phase 4: SOTP and comps *(planned)*
-17. Value Intel Products against fabless peers and Intel Foundry against foundry peers, add equity stakes, subtract net debt.
-18. Compare EV/Sales, EV/EBITDA and P/B against peers.
+### Phase 4: Comps and SOTP
+17. Comps: EV/Sales, EV/EBITDA and P/B for the peer group, with a consistency screen (EV/market cap) that excludes rows with mixed currencies. Peer median and quartiles applied to Intel, through the same equity bridge as the DCF.
+18. SOTP: Intel Products valued on EV/EBIT against fabless peers, Intel Foundry on EV/Sales against GlobalFoundries, All Other at a discount, corporate costs capitalised. Segment revenues overlap (Foundry sells mostly to Products), so they are never added. A sensitivity shows how much of Foundry's loss is charged to Products.
 
 ### Phase 5: Monte Carlo *(planned)*
 19. Sample growth, terminal margin, WACC and terminal growth with correlations and a fixed seed (10,000+ draws). Report median, 10th-90th percentile and probability of value exceeding the current price.
@@ -117,12 +124,13 @@ To force fresh market data, delete the files in `data/raw/` (or pass `refresh=Tr
 |---|---|---|
 | Financial statements | SEC EDGAR XBRL company facts | FY2025 10-K |
 | Latest balance sheet | SEC EDGAR, tied to the Q3 2026 results release | 30 Oct 2026 |
+| Segment results | Intel 10-Q, Note 2 (Operating Segments) | Q3 2026 (quarter ended 26 Sep 2026) |
 | Shares outstanding | 10-Q cover page: 5,315m (5,310m at 26 Sep 2026) | late Oct 2026 |
 | Share price | yfinance (scraped; spot-check before use): 65.76 | 30 Oct 2026, after Q3 results |
 | Risk-free rate | FRED DGS10: 4.98% | *confirm date of the cached file* |
 | Equity risk premium | Damodaran implied ERP: 4.20% | 1 Oct 2026 (check for update) |
 | Credit spread | Damodaran BBB spread table: 1.11% (table undated) | confirm Moody's level and any post-Q3 action |
-| Peer multiples | yfinance (scraped; spot-check before use) | *update on refresh* |
+| Peer multiples | yfinance (scraped; trailing; spot-check before use) | *update on refresh* |
 
 *Update the market-data rows each time the caches are refreshed.*
 
@@ -133,7 +141,7 @@ To force fresh market data, delete the files in `data/raw/` (or pass `refresh=Tr
 | Cash and equivalents | 21,846 | |
 | Short-term investments | 32,159 | equals `afs_investments` |
 | Total debt | 50,134 | 3,817 short-term + 46,317 long-term |
-| Non-controlling interest | 16,642 | |
+| Non-controlling interest | 16,642 | book value |
 | Intel stockholders' equity | 114,914 | 131,556 including NCI; loader `total_equity` excludes NCI |
 | Shares outstanding | 5,315m | |
 
@@ -154,30 +162,64 @@ The WACC range across windows is 10.9-13.8%. The base case uses **11.5%**, consi
 
 ## Results so far
 
-DCF at WACC 11.5%, after fading D&A below terminal capex in all three scenarios:
+### DCF
+
+WACC 11.5%. FY2026 year-1 growth is anchored to nine-month reported revenue plus the Q4 guidance range, and D&A fades below terminal capex in all three scenarios.
 
 | Scenario | Value per share | vs 65.76 |
 |---|---|---|
-| Bear | 0.96 | -98% |
-| Base | 17.31 | -74% |
-| Bull | 33.67 | -49% |
+| Bear | 1.14 | -98% |
+| Base | 18.09 | -72% |
+| Bull | 34.46 | -48% |
 
 Even the bull case is well below the market price, so the market EV (about 362bn) requires far more than any scenario assumes.
 
-### Reverse DCF: what the base case would need to reach 65.76
+### Reverse DCF: what it takes to reach 65.76
 
-| Driver | Base as modelled | Needed for 65.76 |
-|---|---|---|
-| Revenue CAGR over 10 years | 6.9% (103bn in year 10) | 24.4% (468bn in year 10) |
-| Year-10 EBIT margin | 20% | 72% |
-| WACC | 11.5% | 5.6% |
+One driver at a time, everything else at the scenario:
 
-At a 15% revenue CAGR the year-10 EBIT margin would have to be about 40%, and at 20% about 28%. The bear case has no realistic solution.
+| Driver | Base as modelled | Needed for 65.76 | Bull needed |
+|---|---|---|---|
+| Revenue CAGR, 10 years | 7.3% (107bn in year 10) | 24.4% (469bn in year 10) | 18.7% |
+| Year-10 EBIT margin | 20% | 69% | 54% |
+| WACC | 11.5% | 5.7% | 8.0% |
+
+Year-10 revenue of 469bn is about six times Intel's 2021 peak. Combinations: at a 15% revenue CAGR the year-10 margin must reach about 40%; at 20% about 28%; at 25% about 21%. The bear case has no realistic solution (its 50% CAGR and 3.0% WACC roots are mathematical, not plausible scenarios).
+
+### Comps
+
+Intel trades below the peer median on every multiple: EV/Sales 6.0x vs 13.5x, EV/EBITDA 18.9x vs 24.4x, P/B 3.0x vs 12.3x (seven peers; TSM excluded for mixed-currency data). Peer-implied values per share are about 150 (EV/Sales), 85 (EV/EBITDA) and 265 (P/B), but the peers are priced on AI-era growth and margins Intel does not have, and P/B is the least comparable.
+
+### Sum-of-the-parts
+
+| Case | Value per share |
+|---|---|
+| Low | 74.92 |
+| Mid | 85.03 |
+| High | 107.57 |
+| Integrated (Products carries all of Foundry's loss) | 38.66 |
+
+The result turns on how much of Foundry's loss is really Intel Products' wafer cost. The mid case equals the market price when about half of Foundry's loss is charged to Products.
+
+### Reading across methods
+
+The DCF, which values Intel on its own cash flows, sits far below the market. Peer-multiple methods sit at or above it, because peers are priced for similar growth. The market price is therefore consistent with peer-parity and a margin-recovery story, and inconsistent with any single plausible set of standalone cash flows.
+
+## Open items
+
+- `data/manual/capex_financed.csv`: capex funded through partner arrangements (financing section of the cash flow statement, FY2024 and FY2025 10-Ks).
+- Terminal reinvestment check: compare implied net PP&E / revenue with the actual balance sheet figure.
+- Tornado capex bar overstates the upside (lower capex without lower D&A); fade D&A with it.
+- FY2025 revenue (52,853) and year-1 EBIT margins are to be confirmed against the 10-K and Q4 guidance.
+- Pre-2016 revenue tag (`SalesRevenueNet`); pre-2022 net debt reconciliation.
+- Cache expiry for `data/raw/`.
 
 ## Limitations
 
 - Cost of debt uses a generic BBB spread rather than Intel's own traded yields.
-- Capex funded through partner arrangements appears in the financing section of the cash flow statement; `data/manual/capex_financed.csv` (FY2024, FY2025 10-Ks) is still to be filled, so historical capex and FCF may be flattered.
-- Pre-2016 revenue uses a different XBRL tag (`SalesRevenueNet`, to be added); pre-2022 net debt is not reconciled.
-- The FY2026 growth rate is a placeholder pending 9M revenue and Q4 guidance.
-- Scraped market data (yfinance) should be spot-checked. LSEG data, if used, stays in a git-ignored restricted folder until licence terms are confirmed.
+- Capex funded through partner arrangements appears in the financing section of the cash flow statement; until `capex_financed.csv` is filled, historical capex and FCF may be flattered.
+- Pre-2016 revenue uses a different XBRL tag; pre-2022 net debt is not reconciled.
+- Reverse DCF: bear-case solutions (50% revenue CAGR, 3.0% WACC) are mathematical roots, not plausible scenarios. The CAGR solve also applies one growth rate to every year, including FY2026, which is already largely known.
+- SOTP: Foundry revenue is mostly intersegment, so segment revenues overlap. Products' margin depends on internal transfer prices; the share of Foundry's loss charged to Products is the key judgement. Every multiple is set at the top of `step6_sotp.py`. Corporate costs use the Q3 run-rate; the nine-month figure is much larger and may include one-off items. Equity stakes (e.g. Altera) are not yet valued.
+- Peer data comes from yfinance (scraped, trailing, mixed fiscal year-ends); the operating margin field may not match its revenue period, and TSM is excluded because its row mixes currencies. Spot-check before quoting.
+- LSEG data, if used, stays in a git-ignored restricted folder until licence terms are confirmed.
