@@ -37,7 +37,7 @@ revenue0: 52853
 tax_rate: 0.18
 nwc_pct_of_delta_rev: 0.10
 wacc: 0.115
-shares: 5315          # millions, Q3 2026 release (loader shows 5,315: reconcile)
+shares: 5315          # millions, Q3 2026 release (loader shows 5,315)
 
 bridge:               # Q3 2026, 26 Sep 2026
   cash: 21846
@@ -64,4 +64,4 @@ scenarios:
     ebit_margin: [0.07, 0.13, 0.18, 0.22, 0.24, 0.25, 0.26, 0.26, 0.26,  0.26]
     da_pct:      [0.18, 0.17, 0.165, 0.16, 0.155, 0.15, 0.145, 0.14, 0.135, 0.13]
     capex_pct:   [0.25, 0.21, 0.18, 0.16, 0.15, 0.14, 0.14, 0.14, 0.14,  0.14]
-# NOTE: dcf.py takes one da_pct per run. Terminal D&A below terminal capex is intended.
+# da_pct and capex_pct are per-year lists; terminal capex > terminal D&A is intended (engine warns otherwise).
