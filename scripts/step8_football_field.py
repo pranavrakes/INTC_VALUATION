@@ -1,8 +1,3 @@
-"""Step 8: football field. Reads the CSVs saved by steps 3, 5, 6 and 7 in outputs/.
-
-Run steps 3, 5, 6 and 7 first (each saves its CSV). Nothing is recomputed here, so the chart
-always shows exactly what those scripts printed.
-"""
 from __future__ import annotations
 
 import argparse

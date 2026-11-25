@@ -1,16 +1,3 @@
-"""Monte Carlo around a DCF scenario.
-
-Each draw shocks five drivers of a base scenario (DCFInputs) with fixed correlations, runs the
-normal DCF engine, and records value per share. Reproducible (seeded). Place in src/montecarlo.py.
-
-Shocks are ADDITIVE shifts to the scenario paths, so the scenario's own shape is preserved:
-  growth   -> added to years 2..N (year 1, FY2026, is largely known from reported revenue + guidance)
-  margin   -> added to the EBIT margin, ramped linearly from 0 in year 1 to the full shock in year N
-  capex    -> added to capex % of revenue, same ramp, never below D&A
-  wacc     -> added to WACC, clipped to bounds
-  terminal growth -> added, clipped, and kept at least `min_wacc_g_spread` below WACC
-The spreads are judgements (see MCSpec); they are NOT fitted to the share price.
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace

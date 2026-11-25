@@ -143,8 +143,6 @@ def load_financials(refresh: bool = False, min_year: int = 2013) -> pd.DataFrame
 
 
 def load_balance_sheet_latest(refresh: bool = False) -> pd.Series:
-    """Most recent balance sheet items. Drops any item whose latest value is >120 days
-    older than the newest item."""
     facts = get_sec_facts(refresh)
     latest = {}
     for name, tags in INSTANT_TAGS.items():
@@ -157,8 +155,6 @@ def load_balance_sheet_latest(refresh: bool = False) -> pd.Series:
 
 
 def load_share_count(refresh: bool = False) -> dict:
-    """Latest cover-page shares outstanding. Cross-check against the latest 10-Q/8-K by hand --
-    Intel's share count has moved a lot recently."""
     facts = get_sec_facts(refresh)
     rows = facts["facts"]["dei"]["EntityCommonStockSharesOutstanding"]["units"]["shares"]
     df = pd.DataFrame(rows)
@@ -186,8 +182,6 @@ def load_prices(ticker: str = "INTC", start: str = "2013-01-01", refresh: bool =
 
 
 def load_peer_snapshot(tickers: list[str] | None = None, refresh: bool = False) -> pd.DataFrame:
-    """Current multiples for INTC + peers via yfinance .info. Scraped data -- spot-check before use,
-    especially for foreign filers like TSM."""
     import yfinance as yf
     tickers = ["INTC"] + (tickers or PEERS)
     cache = RAW / "peer_snapshot.csv"
@@ -214,7 +208,6 @@ def load_peer_snapshot(tickers: list[str] | None = None, refresh: bool = False) 
 
 
 def load_risk_free(series: str = "DGS10", refresh: bool = False) -> dict:
-    """Latest 10Y Treasury yield from FRED's public CSV endpoint (no API key needed)."""
     cache = RAW / f"fred_{series}.csv"
     if refresh or not cache.exists():
         resp = requests.get(FRED_CSV_URL.format(series=series), timeout=30)
@@ -228,8 +221,6 @@ def load_risk_free(series: str = "DGS10", refresh: bool = False) -> dict:
 
 
 def write_segments_template() -> Path:
-    """Segment (Products/Foundry) data isn't in the XBRL API -- enter it by hand from the
-    10-K segment note into this CSV, in USD millions."""
     path = MANUAL / "segments.csv"
     if not path.exists():
         cols = ["fiscal_year", "segment", "revenue", "operating_income", "source_note"]

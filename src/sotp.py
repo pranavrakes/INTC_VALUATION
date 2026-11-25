@@ -1,13 +1,3 @@
-"""Sum-of-the-parts valuation: Intel Products, Intel Foundry, All Other, corporate costs.
-
-Pure functions. Segment data comes from data/manual/segments.csv ($m); peer multiples from the
-yfinance peer snapshot (dollars). Place in src/sotp.py.
-
-Key modelling point: Foundry revenue is mostly intersegment (Intel Products buys wafers), so
-segment revenues overlap and must NOT be added. Intel Products' operating income is struck after
-paying Foundry's internal transfer prices; if those prices are below Foundry's cost, Products'
-margin is flattered. `foundry_loss_burden` lets you push part of Foundry's loss back onto Products.
-"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -56,7 +46,6 @@ class RunRate:
 
 def run_rate(seg: pd.DataFrame, period: str, factor: float,
              corp_period: str | None = None, corp_factor: float | None = None) -> RunRate:
-    """Annualise a period (factor 4/3 for 9M, 4 for a quarter). Corporate can use its own basis."""
     cp, cf = corp_period or period, corp_factor or factor
     return RunRate(
         products_rev=_get(seg, period, PRODUCTS, "revenue") * factor,
@@ -70,8 +59,6 @@ def run_rate(seg: pd.DataFrame, period: str, factor: float,
 
 
 def peer_ev_ebit(snap: pd.DataFrame, tickers: list[str], max_multiple: float = 60.0) -> pd.Series:
-    """EV / (operating margin x revenue), trailing. Drops negative EBIT and multiples above the cap
-    (tiny GAAP earnings make them meaningless)."""
     d = snap.loc[tickers]
     ebit = d["operatingMargins"] * d["totalRevenue"]
     m = d["enterpriseValue"] / ebit.where(ebit > 0)
@@ -107,7 +94,6 @@ def value_case(rr: RunRate, case: Case, cash: float, debt: float, nci: float,
 def sensitivity(rr: RunRate, base: Case, products_mults: list[float], foundry_mults: list[float],
                 cash: float, debt: float, nci: float, shares: float,
                 extra_claims: float = 0.0) -> pd.DataFrame:
-    """Per-share value: rows = Products EV/EBIT, columns = Foundry EV/Sales."""
     from dataclasses import replace
     grid = {}
     for fm in foundry_mults:

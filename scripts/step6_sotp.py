@@ -1,11 +1,3 @@
-"""Step 6: sum-of-the-parts. Intel Products + Intel Foundry + All Other - corporate costs.
-
-Run from PyCharm like step3-5. The bridge (cash, debt, NCI, shares) comes from the same
-assumptions.yaml as the DCF; peer multiples from the same snapshot as step 5.
-
-Every multiple below is a JUDGEMENT, set at the top of this file so you can change it and
-defend it in the memo. Nothing is tuned to the share price.
-"""
 from __future__ import annotations
 
 import argparse

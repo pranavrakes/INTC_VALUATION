@@ -36,7 +36,6 @@ class DCFResult:
 
 
 def project_fcf(inp: DCFInputs) -> list[dict]:
-    """Revenue -> EBIT -> NOPAT -> unlevered FCF for each forecast year."""
     n = len(inp.growth)
     if len(inp.ebit_margin) != n:
         raise ValueError("growth and ebit_margin must be the same length")

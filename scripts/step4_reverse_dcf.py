@@ -1,8 +1,3 @@
-"""Step 4: reverse DCF. What do you have to believe to justify the market price?
-
-Run from PyCharm like step3. Needs step3_dcf.py to keep its work under
-`if __name__ == "__main__":` (otherwise importing it re-runs step 3).
-"""
 from __future__ import annotations
 
 import argparse

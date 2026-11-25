@@ -1,7 +1,3 @@
-"""Reverse DCF: solve for the single driver that makes DCF value per share equal the market price.
-
-Pure functions on DCFInputs / run_dcf. Place in src/reverse_dcf.py.
-"""
 from __future__ import annotations
 
 from dataclasses import replace

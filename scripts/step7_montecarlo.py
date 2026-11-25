@@ -1,10 +1,3 @@
-"""Step 7: Monte Carlo. How likely is it that the DCF gives a value above the market price?
-
-Shocks the base scenario's growth, margin, capex, WACC and terminal growth (correlated, seeded)
-and runs the normal DCF engine for each draw. The spreads in src/montecarlo.py are judgements,
-not fitted to the price. A "wide" run (all spreads x2) and runs centred on the bear and bull
-scenarios test whether the conclusion depends on those judgements.
-"""
 from __future__ import annotations
 
 import argparse
